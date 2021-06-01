@@ -21,3 +21,6 @@ To compile write
 - npm run dist
 
 If you aren't developer, you can get the latest version in releases section.
+
+## Preview
+![](https://i.imgur.com/f8smU0B.png)

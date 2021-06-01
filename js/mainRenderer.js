@@ -157,6 +157,9 @@ ipcRenderer.on("updateList", async (event, args) => {
     findChampInput.disabled = false
     podiumBtn.disabled = false
     sortSelect.disabled = false
+
+    // default sort by name
+    onSortOptionChange()
 })
 
 ipcRenderer.on("updateInfo", async (event, args) => {
