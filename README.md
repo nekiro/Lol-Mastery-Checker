@@ -11,6 +11,7 @@ Pretty useful for people that love to farm masteries :)
 - JS
 - HTML
 - CSS
+- Electron
 
 ###  How to use?
 - Navigate to your project directory with your favorite cmd
