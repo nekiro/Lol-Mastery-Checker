@@ -1,0 +1,33 @@
+{
+  "name": "mastery-checker",
+  "version": "1.0.0",
+  "description": "Check your mastery points",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder"
+  },
+  "author": "Nekiro",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^13.0.1",
+    "electron-builder": "^22.10.5"
+  },
+  "build": {
+    "appId": "com.electron.mastery-checker",
+    "icon": "./assets/icon.png",
+    "mac": {
+      "category": "your.app.category.type"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  },
+  "dependencies": {
+    "twisted": "^1.44.3"
+  }
+}

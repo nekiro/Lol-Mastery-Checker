@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src *; script-src 'self'">
+    <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; img-src *; script-src 'self'">
+    <link rel="stylesheet" href="../css/style.css">
+  </head>
+  <body>
+    <nav class="menu">
+      <button class="close-btn"></button>
+      <button class="minimize-btn"></button>
+      <select id="region">
+        <option>EUW</option>
+        <option>EUNE</option>
+        <option>NA</option>
+        <option>BR</option>
+        <option>RU</option>
+        <option>TR</option>
+        <option>JP</option>
+        <option>KR</option>
+        <option>OCE</option>
+        <option>LAS</option>
+        <option>LAN</option>
+      </select>
+      <input class="menu-input" placeholder="Find User"></input>
+      <input id="findChamp" class="menu-input" placeholder="Find Champ" disabled></input>
+      <button class="podium-btn" disabled></button>
+      <select id="sortOptions" disabled>
+        <option>Name</option>
+        <option>Mastery Pts Asc.</option>
+        <option>Mastery Pts Desc.</option>
+        <option>Mastery Level Asc.</option>
+        <option>Mastery Level Desc.</option>
+      </select>
+    </nav>
+    <div class="list"></div>
+    <div class="info">
+      <img id="champImage"></img>
+      <div>Total mastery points:</div>
+      <div id="champMasteryPts">0</div>
+      <div>Mastery Level:</div>
+      <div id="champMasteryLevel">0</div>
+      <div>Mastery points to next level:</div>
+      <div id="champMasteryNextLvl">0</div>
+    </div>
+    <script src="../js/mainRenderer.js"></script>
+  </body>
+</html>
