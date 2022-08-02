@@ -1,6 +1,6 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain } = require('electron');
 
-require('./js/ipcMain.js');
+const { settings, parseMastery } = require('./js/ipcMain.js');
 
 exports.createMainWindow = function () {
   const mainWindow = new BrowserWindow({
@@ -25,16 +25,29 @@ exports.createMainWindow = function () {
   return mainWindow;
 };
 
-app.whenReady().then(() => {
-  exports.createMainWindow();
+app.whenReady().then(async () => {
+  const mainWindow = exports.createMainWindow();
+
+  await settings.load();
+
+  setTimeout(async () => {
+    const nickName = settings.get('summoner');
+    if (nickName) await parseMastery(nickName);
+
+    const findChamp = settings.get('findChamp');
+    if (findChamp) mainWindow.webContents.send('filterChampList', findChamp);
+  }, 500);
 
   app.on('activate', function () {
     // On macOS it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) exports.createMainWindow();
   });
 });
 
-app.on('window-all-closed', function () {
-  if (process.platform !== 'darwin') app.quit();
+app.on('window-all-closed', async function () {
+  if (process.platform !== 'darwin') {
+    await settings.save();
+    app.quit();
+  }
 });

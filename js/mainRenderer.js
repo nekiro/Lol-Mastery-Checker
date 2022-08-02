@@ -44,9 +44,8 @@ const champMasteryPts = document.querySelector('#champMasteryPts');
 const champMasteryLevel = document.querySelector('#champMasteryLevel');
 const champMasteryNextLvl = document.querySelector('#champMasteryNextLvl');
 
-// vars
-var lastActiveBtn = null;
-var maestriesCache = [];
+lastActiveBtn = null;
+maestriesCache = [];
 
 onListButtonClick = (elem) => {
   if (lastActiveBtn == elem.target) {
@@ -103,6 +102,12 @@ onSortOptionChange = () => {
     .forEach((node) => champList.appendChild(node));
 };
 
+const filterChampList = (name) => {
+  Array.from(champList.childNodes).forEach((element) => {
+    element.hidden = element.innerText.toLowerCase().search(name) == -1;
+  });
+};
+
 // hooks
 document.addEventListener('keyup', (e) => {
   if (e.key == 'Enter') {
@@ -110,12 +115,16 @@ document.addEventListener('keyup', (e) => {
       ipcRenderer.send('parseMastery', nickNameInput.value);
       nickNameInput.disabled = true;
     } else if (document.activeElement == findChampInput) {
-      let name = findChampInput.value.toLowerCase();
-      Array.from(champList.childNodes).forEach((element) => {
-        element.hidden = element.innerText.toLowerCase().search(name) == -1;
-      });
+      const name = findChampInput.value.toLowerCase();
+      filterChampList(name);
+      ipcRenderer.send('updateFindChamp', name);
     }
   }
+});
+
+ipcRenderer.on('filterChampList', (event, arg) => {
+  findChampInput.value = arg;
+  filterChampList(arg);
 });
 
 ipcRenderer.on('updateList', async (event, args) => {
@@ -130,6 +139,7 @@ ipcRenderer.on('updateList', async (event, args) => {
     return;
   }
 
+  nickNameInput.value = args.nickname;
   champList.innerHTML = '';
   infoDiv.style.display = 'none';
 
