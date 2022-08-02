@@ -9,21 +9,21 @@ body {
 }
 
 .close-btn {
-  background-image: url("../assets/close-btn.svg");
+  background-image: url('../assets/close-btn.svg');
   background-size: cover;
 }
 .minimize-btn {
-  background-image: url("../assets/minimize-btn.svg");
+  background-image: url('../assets/minimize-btn.svg');
   background-size: cover;
 }
 .podium-btn {
-  background-image: url("../assets/trophy.svg");
+  background-image: url('../assets/trophy.svg');
   background-repeat: no-repeat;
   margin-right: 10px;
   background-size: cover;
 }
 .open-main-btn {
-  background-image: url("../assets/maximize-btn.svg");
+  background-image: url('../assets/maximize-btn.svg');
   background-size: cover;
 }
 
