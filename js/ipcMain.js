@@ -1,13 +1,19 @@
-const { BrowserWindow, ipcMain, app } = require('electron');
+const { BrowserWindow, ipcMain } = require("electron");
+const { LolApi, RiotApi, Constants } = require("twisted");
 
-const { LolApi, Constants } = require('twisted');
+const key = "<your_key_here>";
+
+const riotApi = new RiotApi({
+  key,
+  region: Constants.Regions.EU_WEST,
+});
 const api = new LolApi({
-  key: 'RGAPI-9bbe30f6-37c6-443e-8850-a1d001e4dc47', // yeah I know this looks bad
+  key,
   region: Constants.Regions.EU_WEST,
 });
 
-const main = require('../main.js');
-const Settings = require('./settings.js');
+const main = require("../main.js");
+const Settings = require("./settings.js");
 
 // variables
 const championsCache = [];
@@ -25,11 +31,11 @@ function createPodiumWindow() {
       nodeIntegration: true,
       contextIsolation: false,
     },
-    title: 'Podium',
+    title: "Podium",
     resizable: false,
   });
 
-  podiumWindow.loadFile('./html/podium.html');
+  podiumWindow.loadFile("./html/podium.html");
 
   //podiumWindow.webContents.openDevTools()
 }
@@ -38,31 +44,31 @@ function findWindowByTitle(title) {
   return BrowserWindow.getAllWindows().find((w) => w.title === title);
 }
 
-ipcMain.on('menuBtnAction', (event, arg) => {
-  if (arg === 'minimize') {
-    const mainWindow = findWindowByTitle('Mastery Checker');
+ipcMain.on("menuBtnAction", (event, arg) => {
+  if (arg === "minimize") {
+    const mainWindow = findWindowByTitle("Mastery Checker");
     if (mainWindow) {
       mainWindow.minimize();
     }
-  } else if (arg === 'exit') {
-    const mainWindow = findWindowByTitle('Mastery Checker');
+  } else if (arg === "exit") {
+    const mainWindow = findWindowByTitle("Mastery Checker");
     if (mainWindow) {
       mainWindow.close();
     }
-  } else if (arg == 'podium' && !findWindowByTitle('Podium')) {
+  } else if (arg == "podium" && !findWindowByTitle("Podium")) {
     createPodiumWindow();
-  } else if (arg == 'podium-minimize') {
-    const podiumWindow = findWindowByTitle('Podium');
+  } else if (arg == "podium-minimize") {
+    const podiumWindow = findWindowByTitle("Podium");
     if (podiumWindow) {
       podiumWindow.minimize();
     }
-  } else if (arg == 'podium-exit') {
-    const podiumWindow = findWindowByTitle('Podium');
+  } else if (arg == "podium-exit") {
+    const podiumWindow = findWindowByTitle("Podium");
     if (podiumWindow) {
       podiumWindow.close();
     }
-  } else if (arg == 'open-main') {
-    const mainWindow = findWindowByTitle('Mastery Checker');
+  } else if (arg == "open-main") {
+    const mainWindow = findWindowByTitle("Mastery Checker");
     if (!mainWindow) {
       let window = main.createMainWindow();
       if (window) {
@@ -73,42 +79,46 @@ ipcMain.on('menuBtnAction', (event, arg) => {
 });
 
 async function getChampionDataById(id) {
-  let championId = Number(id.replace('champ', ''));
+  let championId = Number(id.replace("champ", ""));
   let data = championsCache[String(championId)];
-  let masteries = await api.Champion.masteryBySummoner(summonerId, region);
+  let masteries = await api.Champion.masteryByPUUID(summonerId, region);
   return {
     champs: data,
     mastery: masteries.response.find((c) => c.championId == championId),
   };
 }
 
-ipcMain.on('getChampionDataById', async (event, id) => {
-  event.sender.send('updateInfo', await getChampionDataById(id));
+ipcMain.on("getChampionDataById", async (event, id) => {
+  event.sender.send("updateInfo", await getChampionDataById(id));
 });
 
 async function parseMastery(arg) {
-  const mainWindow = findWindowByTitle('Mastery Checker');
+  const mainWindow = findWindowByTitle("Mastery Checker");
   if (!mainWindow) {
-    mainWindow.webContents.send('updateList', { success: false });
+    mainWindow.webContents.send("updateList", { success: false });
     return;
   }
 
   let masteries;
   let champions;
   let summoner;
+  let account;
 
   try {
-    try {
-      summoner = await api.Summoner.getByName(arg, region);
-    } catch {
-      summoner = await api.Summoner.getById(arg, region);
-    }
+    account = (
+      await riotApi.Account.getByRiotId(
+        arg,
+        region,
+        Constants.RegionGroups.EUROPE
+      )
+    ).response;
 
-    summonerId = summoner.response.id;
-    masteries = await api.Champion.masteryBySummoner(summonerId, region);
+    summoner = await api.Summoner.getByPUUID(account.puuid, region);
+    summonerId = summoner.response.puuid;
+    masteries = await api.Champion.masteryByPUUID(summonerId, region);
     champions = await api.DataDragon.getChampion();
   } catch (err) {
-    mainWindow.webContents.send('updateList', { success: false });
+    mainWindow.webContents.send("updateList", { success: false });
     return;
   }
 
@@ -121,31 +131,31 @@ async function parseMastery(arg) {
     });
   }
 
-  settings.set('summoner', summoner.response.name);
+  settings.set("summoner", account.gameName);
 
-  mainWindow.webContents.send('updateList', {
+  mainWindow.webContents.send("updateList", {
     masteries: masteries.response,
     names: idToName,
-    nickname: summoner.response.name,
+    nickname: account.gameName,
     success: true,
   });
 }
 
-ipcMain.on('parseMastery', (event, arg) => {
+ipcMain.on("parseMastery", (event, arg) => {
   parseMastery(arg);
 });
 
-ipcMain.on('updatePodium', async (event) => {
+ipcMain.on("updatePodium", async (event) => {
   const podiumWindow = BrowserWindow.getAllWindows().find(
-    (w) => w.title === 'Podium'
+    (w) => w.title === "Podium"
   );
   if (!podiumWindow) {
-    event.sender.send('updatePodium', { success: false });
+    event.sender.send("updatePodium", { success: false });
     return;
   }
 
   // find top 3 mastery to advance
-  let masteries = await api.Champion.masteryBySummoner(summonerId, region);
+  let masteries = await api.Champion.masteryByPUUID(summonerId, region);
   let filtered = masteries.response.filter((c) => c.championLevel < 5);
   filtered.sort(function (a, b) {
     return a.championPoints < b.championPoints;
@@ -157,11 +167,11 @@ ipcMain.on('updatePodium', async (event) => {
     champ.imgUrl = `http://ddragon.leagueoflegends.com/cdn/${champInfo.version}/img/champion/${champInfo.image.full}`;
   });
 
-  event.sender.send('updatePodium', { podium: filtered, success: true });
+  event.sender.send("updatePodium", { podium: filtered, success: true });
 });
 
-ipcMain.on('updateFindChamp', (event, search) => {
-  settings.set('findChamp', search);
+ipcMain.on("updateFindChamp", (event, search) => {
+  settings.set("findChamp", search);
 });
 
 const stringToRegion = {
@@ -178,7 +188,7 @@ const stringToRegion = {
   LAN: Constants.Regions.LAT_NORTH,
 };
 
-ipcMain.on('updateRegion', async (event, arg) => {
+ipcMain.on("updateRegion", async (event, arg) => {
   region = stringToRegion[arg];
 });
 

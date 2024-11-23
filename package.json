@@ -1,6 +1,6 @@
 {
   "name": "mastery-checker",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Check your mastery points",
   "main": "main.js",
   "scripts": {
@@ -11,8 +11,8 @@
   "author": "Nekiro",
   "license": "MIT",
   "devDependencies": {
-    "electron": "^13.0.1",
-    "electron-builder": "^22.10.5"
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
   },
   "build": {
     "appId": "com.electron.mastery-checker",
@@ -28,6 +28,6 @@
     }
   },
   "dependencies": {
-    "twisted": "^1.44.3"
+    "twisted": "^1.61.4"
   }
 }
